@@ -11,7 +11,6 @@ public:
 #else
     virtual bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr*) override;
 #endif
-
 };
 
 #endif // NATIVEFILTER_H

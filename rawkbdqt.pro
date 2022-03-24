@@ -1,6 +1,6 @@
 TARGET = RawKbdQt
 TEMPLATE = app
-QT += core gui widgets
+QT += gui widgets
 
 SOURCES += main.cpp\
            mainwindow.cpp \

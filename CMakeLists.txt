@@ -47,7 +47,10 @@ endif()
 add_executable( RawKbdQt
     main.cpp
     mainwindow.cpp
+    mainwindow.h
     nativefilter.cpp
+    nativefilter.h
+    $<$<PLATFORM_ID:Darwin>:maceventhelper.h>
     $<$<PLATFORM_ID:Darwin>:maceventhelper.mm>
 )
 

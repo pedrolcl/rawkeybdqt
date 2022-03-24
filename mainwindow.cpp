@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setAttribute(Qt::WA_InputMethodEnabled, false);
+	setAttribute(Qt::WA_KeyCompression, false);
     QWidget *widget = new QWidget(this);;
     this->setCentralWidget(widget);
     QVBoxLayout *layout = new QVBoxLayout(widget);
@@ -33,13 +34,17 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 	if (!event->isAutoRepeat()) {
-        qDebug() << Q_FUNC_INFO << event->nativeScanCode() << event->nativeVirtualKey();
+        qDebug() << Q_FUNC_INFO 
+				 << "scanCode" << event->nativeScanCode() 
+				 << "virtualKey" << event->nativeVirtualKey();
 	}
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
 	if (!event->isAutoRepeat()) {
-        qDebug() << Q_FUNC_INFO << event->nativeScanCode() << event->nativeVirtualKey();
+		qDebug() << Q_FUNC_INFO 
+				 << "scanCode" << event->nativeScanCode() 
+				 << "virtualKey" << event->nativeVirtualKey();
 	}
 }

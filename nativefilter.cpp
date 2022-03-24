@@ -1,4 +1,3 @@
-#include <QApplication>
 #include <QDebug>
 #include "nativefilter.h"
 
@@ -84,17 +83,19 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
 #if defined(Q_OS_WIN)
         bool isRepeat = false;
         MSG* msg = static_cast<MSG *>(message);
-        if (msg->message == WM_KEYDOWN || msg->message == WM_KEYUP) {
-            int keycode = HIWORD(msg->lParam) & 0xff;
-            isRepeat = (msg->message == WM_KEYDOWN) &&
-                       ((HIWORD(msg->lParam) & 0x4000) != 0);
+		/* https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags */
+        if (msg->message == WM_KEYDOWN || msg->message == WM_KEYUP ||
+			msg->message == WM_SYSKEYDOWN || msg->message == WM_SYSKEYUP ) {
+			int vkCode = LOWORD(msg->wParam); // virtual-key code: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+			int scanCode = LOBYTE(HIWORD(msg->lParam));  
+			isRepeat = (msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN) && 
+					   (HIWORD(msg->lParam) & KF_REPEAT) == KF_REPEAT;
             if (!isRepeat) {
-                if ( msg->message == WM_KEYDOWN )
-                    //return m_handler->handleKeyPressed(keycode);
-                    qDebug() << "key pressed:" << keycode;
-                else
-                    //return m_handler->handleKeyReleased(keycode);
-                    qDebug() << "key released:" << keycode;
+				if ( msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN ) {
+                    qDebug() << "key pressed. scanCode:" << scanCode << "vkCode:" << vkCode;
+                } else {
+                    qDebug() << "key released. scanCode:" << scanCode << "vkCode:" << vkCode;
+				}
             }
             return true;
         }
