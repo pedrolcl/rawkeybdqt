@@ -10,8 +10,6 @@
     #include <xcb/xcb.h>
     #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         #include <QX11Info>
-        // private header, avoid if possible...
-        //#include <qpa/qplatformnativeinterface.h>
     #else // needs Qt6 >= 6.2
         #include <QGuiApplication>
     #endif
@@ -32,10 +30,6 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
         if (connection == nullptr) {
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
             connection = QX11Info::connection();
-            // private API, avoid if possible...
-            //QPlatformNativeInterface *native = qApp->platformNativeInterface();
-            //void *conn = native->nativeResourceForWindow(QByteArray("connection"), 0);
-            //connection = reinterpret_cast<xcb_connection_t *>(conn);
 #else // needs Qt6 >= 6.2
             if (auto x11nativeitf = qApp->nativeInterface<QNativeInterface::QX11Application>()) {
                 connection = x11nativeitf->connection();
@@ -53,7 +47,7 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
                     last_rel_time = 0;
                 }
                 if (!isRepeat) {
-                    qDebug() << "key pressed:" << kp->detail;
+                    qDebug() << Q_FUNC_INFO << "key pressed. scanCode:" << kp->detail;
                 }
                 return true;
             }
@@ -71,7 +65,7 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
                     last_rel_time = kr->time;
                 }
                 if (!isRepeat) {
-                    qDebug() << "key released:" << kr->detail;
+                    qDebug() << Q_FUNC_INFO << "key released. scanCode:" << kr->detail;
                 }
                 return true;
             }
@@ -83,22 +77,22 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
 #if defined(Q_OS_WIN)
         bool isRepeat = false;
         MSG* msg = static_cast<MSG *>(message);
-		/* https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags */
+        /* https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags */
         if (msg->message == WM_KEYDOWN || msg->message == WM_KEYUP ||
-			msg->message == WM_SYSKEYDOWN || msg->message == WM_SYSKEYUP ) {
-			int vkCode = LOWORD(msg->wParam); // virtual-key code: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-			int scanCode = LOBYTE(HIWORD(msg->lParam));  
-			isRepeat = (msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN) && 
-					   (HIWORD(msg->lParam) & KF_REPEAT) == KF_REPEAT;
-            if (!isRepeat) {
-				if ( msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN ) {
-                    qDebug() << "key pressed. scanCode:" << scanCode << "vkCode:" << vkCode;
-                } else {
-                    qDebug() << "key released. scanCode:" << scanCode << "vkCode:" << vkCode;
-				}
+        msg->message == WM_SYSKEYDOWN || msg->message == WM_SYSKEYUP ) {
+        int vkCode = LOWORD(msg->wParam); // virtual-key code: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+        int scanCode = LOBYTE(HIWORD(msg->lParam));  
+        isRepeat = (msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN) &&
+                   (HIWORD(msg->lParam) & KF_REPEAT) == KF_REPEAT;
+        if (!isRepeat) {
+            if ( msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN ) {
+                qDebug() << Q_FUNC_INFO << "key pressed. scanCode:" << scanCode << "keyCode:" << vkCode;
+            } else {
+                qDebug() << Q_FUNC_INFO << "key released. scanCode:" << scanCode << "keyCode:" << vkCode;
             }
             return true;
         }
+    }
 #endif
     } else if (eventType == "mac_generic_NSEvent") {
 #if defined(Q_OS_MAC)
@@ -107,14 +101,14 @@ bool NativeFilter::nativeEventFilter(const QByteArray &eventType, void *message,
         if (helper->isKeyNotRepeated()) {
             int keyCode = helper->rawKeyCode();
             if (helper->isKeyPress())
-                qDebug() << "key pressed:" << keyCode;
+                qDebug() << Q_FUNC_INFO << "key pressed. keyCode:" << keyCode;
             else
-                qDebug() << "key released:" << keyCode;
+                qDebug() << Q_FUNC_INFO << "key released. keyCode:" << keyCode;
             return true;
         }
 #endif
     } else {
-        qDebug() << "eventType =" << eventType;
+        qDebug() << Q_FUNC_INFO << "eventType =" << eventType;
     }
     return false;
 }

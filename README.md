@@ -35,21 +35,24 @@ The native filter can process the event and return 'true', stopping the events f
 One apparent inconvenience is that processing key events at a global application level instead of widget level is a limitation. But QKeyEvents are always received by a single widget: the widget that has the focus in the active window. It should be very easy to emulate the focus mechanism adding a handler property to the NativeFilter class, so it may call a method synchronously on any other class of the application for processing. Or alternatively, the NativeFilter instance may call QCoreApplication::postEvent(handler, qevent) to allow asynchronous processing by arbitrary objects. Deriving the NativeFilter class from QObject (thanks to C++ multiple inheritance) makes it possible to use Qt signals as well.
 
 ## Results
+
+Tests built with Qt 5.15.2 and Qt 6.2.4
+
 :heavy_check_mark: means that it is usable.
 
 :x: means that it is not usable. See the notes.
 
 :question: means that the results are not conclusive.
 
-| *QKeyEvent*      | Windows            | macOS              | Linux X11          | Wayland            | 
-| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ | 
-| dead keys        | :x: [^1]           | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
-| auto repeat      | :x: [^2]           | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
-| scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :question:         | 
-| virtual key code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
+| *QKeyEvent*      | Windows            | macOS              | Linux X11          | Wayland            |
+| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ |
+| dead keys        | :x: [^1]           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| auto repeat      | :x: [^2]           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :heavy_check_mark: |
+| virtual key code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 | *NativeFilter*   | Windows            | macOS              | Linux X11          | Wayland            |
-| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ | 
+| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ |
 | dead keys        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
 | auto repeat      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
 | scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :x: [^4]           |
