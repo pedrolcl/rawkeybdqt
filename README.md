@@ -15,15 +15,15 @@ At this moment, the VMPK program is already released for Windows, macOS and Linu
 ## What problems has QKeyEvent
 [QKeyEvent](https://doc.qt.io/qt-6/qkeyevent.html) is received by a Widget in Qt apps after the low level keyboard event has been already processed by the underlying platform and the input methods to produce characters that could be used to input text data for programs (this is of course the most general use case of keyboard input). QKeyEvent has several functions that identify the key producing the event. Two event handlers are available: keyPressEvent() and keyReleaseEvent(), both receiving a QKeyEvent parameter. The relevant QKeyEvent functions for this project are:
 
-* int key(): Returns the code of the key that was pressed or released. These codes are independent of the underlying window system.
-* bool isAutoRepeat(): Returns true if this event comes from an auto-repeating key.
-* quint32 nativeScanCode(): Returns the native scan code of the key event. If the key event does not contain this data 0 is returned.
-* quint32 nativeVirtualKey(): Returns the native virtual key, or key sym of the key event. If the key event does not contain this data 0 is returned.
+* *int key()*: Returns the code of the key that was pressed or released. These codes are independent of the underlying window system.
+* *bool isAutoRepeat()*: Returns true if this event comes from an auto-repeating key.
+* *quint32 nativeScanCode()*: Returns the native scan code of the key event. If the key event does not contain this data 0 is returned.
+* *quint32 nativeVirtualKey()*: Returns the native virtual key, or key sym of the key event. If the key event does not contain this data 0 is returned.
 
 Some of the observed problems with QKeyEvent are:
 
 * key() dependency on the national layout of the keyboard: each national keyboard layout needs a different mapping from key() to MIDI note. On the other hand, the numeric identifiers of the raw keys (either scan codes or key codes) depend only on the operating system (and keyboard driver) requiring a single mapping for each platform.
-* there dead keys usually found in national layouts (for instance: accents) that complicate the event delivery, and the reliability of the detected keys. Dead keys should be usable like any other key for MIDI note mappings.
+* there are dead keys usually found in national keyboard layouts (for instance: accents) that complicate the event delivery, and the reliability of the detected keys. Dead keys should be usable like any other key for MIDI note mappings.
 
 It is not possible to have a single keyboard mapping both cross-platform and cross-language, but supporting three mappings (Lin/Win/Mac) is better than hundreds for all the languages.
 
@@ -41,23 +41,21 @@ One apparent inconvenience is that processing key events at a global application
 
 :question: means that the results are not conclusive.
 
-| QKeyEvent        | Windows            | macOS              | Linux X11          | Wayland            |
-| ---------------- + ------------------ + ------------------ + ------------------ + ------------------ |
-| dead keys        | :x: [^1]           | :heavy_check_mark: | :heavy_check_mark: | :question:         |
-| auto repeat      | :x: [^2]           | :heavy_check_mark: | :heavy_check_mark: | :question:         |
-| scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :question:         |
-| virtual key code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :question:         |
+| *QKeyEvent*      | Windows            | macOS              | Linux X11          | Wayland            | 
+| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ | 
+| dead keys        | :x: [^1]           | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
+| auto repeat      | :x: [^2]           | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
+| scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :question:         | 
+| virtual key code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :question:         | 
 
-
-| NativeFilter     | Windows            | macOS              | Linux X11          | Wayland            |
-| ---------------- + ------------------ + ------------------ + ------------------ + ------------------ |
+| *NativeFilter*   | Windows            | macOS              | Linux X11          | Wayland            |
+| ---------------- | ------------------ | ------------------ | ------------------ | ------------------ | 
 | dead keys        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
-| isAutoRepeat     | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
-| nativeScanCode   | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :x: [^4]           |
-| nativeVirtualKey | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
-
+| auto repeat      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
+| scan code        | :heavy_check_mark: | :x: [^3]           | :heavy_check_mark: | :x: [^4]           |
+| virtual key code | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: [^4]           |
 
 [^1]: unusable: dead keys are not always received
 [^2]: unreliable: some repeated keys return false
-[^3]: not accessible: cocoa does not allow to access this code
+[^3]: not accessible: Cocoa does not allow to access this data
 [^4]: not possible: the native filter is never called
